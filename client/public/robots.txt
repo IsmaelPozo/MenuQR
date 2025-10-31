@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://yourqrmenu.com/sitemap.xml
+
+# Disallow admin areas
+Disallow: /dashboard
+Disallow: /menu-management
+Disallow: /tables
+Disallow: /kitchen
