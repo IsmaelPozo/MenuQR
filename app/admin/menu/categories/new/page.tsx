@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { CategoryForm } from "@/components/menu/category-form"
+import type { LanguageCode } from "@/lib/languages"
 
 export default async function NewCategoryPage() {
   const supabase = await createClient()
@@ -15,6 +16,10 @@ export default async function NewCategoryPage() {
   if (!user) {
     redirect("/auth/login")
   }
+
+  const { data: restaurant } = await supabase.from("restaurants").select("default_language").eq("id", user.id).single()
+
+  const defaultLanguage = (restaurant?.default_language || "es") as LanguageCode
 
   return (
     <div className="min-h-screen bg-muted/30">
@@ -36,7 +41,7 @@ export default async function NewCategoryPage() {
       </header>
 
       <main className="container mx-auto px-4 py-8 max-w-2xl">
-        <CategoryForm restaurantId={user.id} />
+        <CategoryForm restaurantId={user.id} defaultLanguage={defaultLanguage} />
       </main>
     </div>
   )

@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Clock, ChefHat } from "lucide-react"
+import { Clock, ChefHat, CheckCircle2 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 
@@ -13,6 +13,8 @@ interface OrderWithDetails {
   table_id: string
   customer_name: string | null
   total_amount: number
+  amount_paid: number
+  is_fully_paid: boolean
   status: string
   created_at: string
   tables: {
@@ -21,6 +23,7 @@ interface OrderWithDetails {
   order_items: Array<{
     id: string
     quantity: number
+    is_paid: boolean
     menu_items: {
       name: string
       price: number
@@ -141,7 +144,10 @@ export function KitchenView({ orders }: KitchenViewProps) {
       <Card>
         <CardContent className="py-12 text-center">
           <ChefHat className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-          <p className="text-muted-foreground">No hay pedidos pendientes</p>
+          <p className="text-muted-foreground">No hay pedidos pagados pendientes</p>
+          <p className="text-sm text-muted-foreground mt-2">
+            Los pedidos aparecerán aquí una vez que los clientes paguen
+          </p>
         </CardContent>
       </Card>
     )
@@ -162,6 +168,10 @@ export function KitchenView({ orders }: KitchenViewProps) {
                 <div>
                   <CardTitle className="text-xl">Mesa {order.tables.table_number}</CardTitle>
                   {order.customer_name && <p className="text-sm text-muted-foreground">{order.customer_name}</p>}
+                  <Badge variant="secondary" className="mt-1 text-xs">
+                    <CheckCircle2 className="h-3 w-3 mr-1" />
+                    Pagado
+                  </Badge>
                 </div>
                 <div className="flex items-center gap-1 text-xs text-muted-foreground">
                   <Clock className="h-3 w-3" />

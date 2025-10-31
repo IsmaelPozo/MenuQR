@@ -16,7 +16,6 @@ export default async function KitchenPage() {
     redirect("/auth/login")
   }
 
-  // Get all orders with their items
   const { data: orders } = await supabase
     .from("orders")
     .select(
@@ -30,6 +29,7 @@ export default async function KitchenPage() {
     `,
     )
     .eq("restaurant_id", user.id)
+    .eq("is_fully_paid", true)
     .neq("status", "paid")
     .order("created_at", { ascending: true })
 
@@ -46,7 +46,7 @@ export default async function KitchenPage() {
             </Button>
             <div>
               <h1 className="text-2xl font-bold">Vista de Cocina</h1>
-              <p className="text-sm text-muted-foreground">Gestiona los pedidos en tiempo real</p>
+              <p className="text-sm text-muted-foreground">Pedidos pagados listos para preparar</p>
             </div>
           </div>
         </div>

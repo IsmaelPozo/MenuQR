@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Minus, Plus, Trash2 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import type { MenuItem } from "@/lib/types"
+import { PaymentOptions } from "./payment-options"
 
 interface CartItem extends MenuItem {
   quantity: number
@@ -37,6 +38,8 @@ export function CartSheet({
   const [customerName, setCustomerName] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [orderId, setOrderId] = useState<string | null>(null)
+  const [showPayment, setShowPayment] = useState(false)
 
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
 
@@ -48,7 +51,6 @@ export function CartSheet({
     const supabase = createClient()
 
     try {
-      // Create order
       const { data: order, error: orderError } = await supabase
         .from("orders")
         .insert({
@@ -56,7 +58,7 @@ export function CartSheet({
           table_id: tableId,
           customer_name: customerName || null,
           total_amount: total,
-          status: "received",
+          status: "pending_payment",
           payment_status: "pending",
         })
         .select()
@@ -64,7 +66,6 @@ export function CartSheet({
 
       if (orderError) throw orderError
 
-      // Create order items
       const orderItems = cart.map((item) => ({
         order_id: order.id,
         menu_item_id: item.id,
@@ -77,16 +78,57 @@ export function CartSheet({
 
       if (itemsError) throw itemsError
 
-      // Update table status
       await supabase.from("tables").update({ status: "occupied" }).eq("id", tableId)
 
-      onOrderComplete()
-      alert("¡Pedido enviado con éxito! La cocina lo está preparando.")
+      setOrderId(order.id)
+      setShowPayment(true)
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "Error al enviar el pedido")
+      setError(error instanceof Error ? error.message : "Error al crear el pedido")
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  const handlePaymentComplete = () => {
+    setShowPayment(false)
+    setOrderId(null)
+    onOrderComplete()
+    alert("¡Pago completado! Tu pedido ha sido enviado a la cocina.")
+  }
+
+  if (showPayment && orderId) {
+    return (
+      <Sheet open={isOpen} onOpenChange={onClose}>
+        <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>Pagar Pedido</SheetTitle>
+            <SheetDescription>Elige cómo quieres pagar</SheetDescription>
+          </SheetHeader>
+
+          <div className="mt-6">
+            <PaymentOptions
+              orderId={orderId}
+              tableId={tableId}
+              restaurantId={restaurantId}
+              items={cart.map((item) => ({
+                id: item.id,
+                quantity: item.quantity,
+                unit_price: item.price,
+                total_price: item.price * item.quantity,
+                is_paid: false,
+                menu_items: {
+                  name: item.name,
+                  price: item.price,
+                },
+              }))}
+              totalAmount={total}
+              customerName={customerName}
+              onPaymentComplete={handlePaymentComplete}
+            />
+          </div>
+        </SheetContent>
+      </Sheet>
+    )
   }
 
   return (
@@ -94,7 +136,7 @@ export function CartSheet({
       <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto">
         <SheetHeader>
           <SheetTitle>Tu Pedido</SheetTitle>
-          <SheetDescription>Revisa tu pedido antes de enviarlo a la cocina</SheetDescription>
+          <SheetDescription>Revisa tu pedido antes de proceder al pago</SheetDescription>
         </SheetHeader>
 
         <form onSubmit={handleSubmitOrder} className="mt-6 space-y-6">
@@ -162,7 +204,7 @@ export function CartSheet({
           {error && <p className="text-sm text-destructive">{error}</p>}
 
           <Button type="submit" className="w-full" size="lg" disabled={isSubmitting || cart.length === 0}>
-            {isSubmitting ? "Enviando..." : "Enviar Pedido"}
+            {isSubmitting ? "Creando pedido..." : "Continuar al Pago"}
           </Button>
         </form>
       </SheetContent>
