@@ -4,13 +4,51 @@
   "description": "QR Menu System for Restaurants",
   "main": "server/index.js",
   "scripts": {
-    "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "server": "cd server && npm run dev",
-    "client": "cd client && npm start",
     "build": "cd client && npm run build",
-    "install-all": "npm install && cd server && npm install && cd ../client && npm install"
+    "client": "cd client && npm start",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "install-all": "npm install && cd server && npm install && cd ../client && npm install",
+    "server": "cd server && npm run dev"
+  },
+  "dependencies": {
+    "@supabase/ssr": "latest",
+    "@supabase/supabase-js": "latest",
+    "axios": "latest",
+    "bcryptjs": "latest",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "cors": "latest",
+    "dotenv": "latest",
+    "express": "latest",
+    "express-rate-limit": "latest",
+    "express-validator": "latest",
+    "helmet": "latest",
+    "i18next": "latest",
+    "i18next-browser-languagedetector": "latest",
+    "jsonwebtoken": "latest",
+    "libretranslatejs": "latest",
+    "lucide-react": "^0.454.0",
+    "multer": "latest",
+    "mysql2": "latest",
+    "next": "16.0.1",
+    "qrcode": "latest",
+    "qrcode.react": "latest",
+    "react": "19.2.0",
+    "react-dom": "latest",
+    "react-hot-toast": "latest",
+    "react-i18next": "latest",
+    "react-router-dom": "latest",
+    "tailwind-merge": "^2.5.5",
+    "tailwindcss-animate": "^1.0.7",
+    "tw-animate-css": "latest"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "@types/node": "^22",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
+    "concurrently": "^8.2.2",
+    "postcss": "^8.5",
+    "tailwindcss": "4.1.16",
+    "typescript": "^5"
   }
 }
