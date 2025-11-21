@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ristorante La Nonna · Sistema de Menú QR</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Librería para generación de códigos QR -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js" integrity="sha512-ev2X+HTwxLBzME2YkdE+5EYXPLkZX31lrT7xvFeoJEB6Digw1VE3D6Z0SqnX+ANXoy2cwrRez2oJ6TP2PzYR4Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <header class="container py-16 flex justify-between items-center">
+    <h1 class="m-0" id="app-title">Ristorante La Nonna · Sistema QR</h1>
+    <nav id="main-nav" class="flex gap-8">
+      <button class="btn btn--secondary" data-nav="admin">Administración</button>
+      <button class="btn btn--secondary" data-nav="kitchen">Cocina</button>
+    </nav>
+  </header>
+
+  <!-- Sección Administración -->
+  <section id="admin-section" class="container section">
+    <h2 class="mb-16">Panel de Administración</h2>
+
+    <!-- Información del restaurante -->
+    <article class="card mb-16">
+      <div class="card__header"><h3>Información del Restaurante</h3></div>
+      <div class="card__body">
+        <form id="resto-form" class="flex flex-col gap-8">
+          <div>
+            <label class="form-label" for="resto-nombre">Nombre</label>
+            <input id="resto-nombre" class="form-control" type="text" required />
+          </div>
+          <div>
+            <label class="form-label" for="resto-dir">Dirección</label>
+            <input id="resto-dir" class="form-control" type="text" required />
+          </div>
+          <div>
+            <label class="form-label" for="resto-tel">Teléfono</label>
+            <input id="resto-tel" class="form-control" type="text" required />
+          </div>
+          <div>
+            <label class="form-label" for="resto-logo">Logo (URL)</label>
+            <input id="resto-logo" class="form-control" type="text" />
+          </div>
+          <button type="submit" class="btn btn--primary">Guardar Cambios</button>
+        </form>
+      </div>
+    </article>
+
+    <!-- Configuración de mesas -->
+    <article class="card mb-16">
+      <div class="card__header"><h3>Mesas & Códigos QR</h3></div>
+      <div class="card__body flex flex-col gap-16">
+        <form id="mesas-form" class="flex items-center gap-8">
+          <label class="form-label" for="num-mesas">Número total de mesas</label>
+          <input id="num-mesas" class="form-control" type="number" min="1" style="max-width: 120px" required />
+          <button type="submit" class="btn btn--primary">Actualizar</button>
+        </form>
+        <div id="mesas-qr-list" class="flex flex-wrap gap-16"></div>
+      </div>
+    </article>
+
+    <!-- Gestión de menú -->
+    <article class="card mb-32">
+      <div class="card__header flex justify-between items-center">
+        <h3 class="m-0">Gestión de Menú</h3>
+        <button id="btn-toggle-add-item" class="btn btn--outline btn--sm">Agregar Plato</button>
+      </div>
+      <div class="card__body">
+        <div id="add-item-container" class="hidden mb-16">
+          <form id="add-item-form" class="flex flex-col gap-8">
+            <div>
+              <label class="form-label" for="item-cat">Categoría</label>
+              <input id="item-cat" class="form-control" type="text" list="categoria-list" required />
+              <datalist id="categoria-list"></datalist>
+            </div>
+            <div>
+              <label class="form-label" for="item-nombre">Nombre del plato</label>
+              <input id="item-nombre" class="form-control" type="text" required />
+            </div>
+            <div>
+              <label class="form-label" for="item-desc">Descripción</label>
+              <textarea id="item-desc" class="form-control" required></textarea>
+            </div>
+            <div>
+              <label class="form-label" for="item-precio">Precio (€)</label>
+              <input id="item-precio" class="form-control" type="number" step="0.01" required />
+            </div>
+            <div>
+              <label class="form-label" for="item-img">Imagen (URL)</label>
+              <input id="item-img" class="form-control" type="text" />
+            </div>
+            <button type="submit" class="btn btn--primary">Añadir Plato</button>
+          </form>
+        </div>
+
+        <div id="menu-list"></div>
+      </div>
+    </article>
+  </section>
+
+  <!-- Sección Cocina -->
+  <section id="kitchen-section" class="container section hidden">
+    <h2 class="mb-16">Panel de Cocina / Servicio</h2>
+    <div id="kitchen-orders" class="flex flex-col gap-16"></div>
+  </section>
+
+  <!-- Sección Cliente -->
+  <section id="client-section" class="container section hidden">
+    <h2 id="client-restaurant-name" class="mb-8"></h2>
+    <p id="client-table-label" class="mb-16"></p>
+
+    <!-- Contenedor menú -->
+    <div id="client-menu" class="flex flex-col gap-16 mb-32"></div>
+
+    <!-- Carrito -->
+    <aside id="cart" class="card hidden">
+      <div class="card__header flex justify-between items-center">
+        <h3 class="m-0">Tu Pedido</h3>
+        <span id="cart-total" class="font-bold"></span>
+      </div>
+      <div class="card__body">
+        <div id="cart-items" class="flex flex-col gap-8 mb-16"></div>
+        <button id="btn-confirm-order" class="btn btn--primary btn--full-width mb-8">Confirmar Pedido</button>
+        <button id="btn-pay-order" class="btn btn--secondary btn--full-width mb-8 hidden">Pagar Pedido</button>
+        <button id="btn-pay-table" class="btn btn--secondary btn--full-width hidden">Pagar Mesa Completa</button>
+      </div>
+    </aside>
+  </section>
+
+  <footer class="container py-16">
+    <p class="text-center">© 2025 La Nonna • Sistema de Menú QR de demostración.</p>
+  </footer>
+</body>
+</html>
